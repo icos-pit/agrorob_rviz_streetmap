@@ -62,9 +62,14 @@ def main():
     from_bag = True # if true read fix msgs from bag and publish on wall time if false generate fake
 
     navsatfix = NavSatFix()
+
+    def listener_callback(msg):
+        nonlocal navsatfix
+        navsatfix = msg
+
     node = rclpy.create_node('publish_demo_data')
     publisher = node.create_publisher(NavSatFix, 'ublox_rover/fix/wall_time', 1)
-    subscriber = node.create_subscription(NavSatFix, 'ublox_rover/fix2', listener_callback, 10)
+    node.create_subscription(NavSatFix, 'ublox_rover/fix', listener_callback, 10)
 
     origin = NavSatFix()
     origin.latitude = args.latitude
@@ -76,8 +81,7 @@ def main():
     if args.no_fix_phase:
         updaters.append(LooseFix(args.no_fix_phase, args.no_fix_period))
 
-    def listener_callback(msg):
-        navsatfix = msg
+    
 
     def timer_callback():
         fix = NavSatFix()
@@ -93,6 +97,7 @@ def main():
         else:
             fix.latitude = navsatfix.latitude
             fix.longitude = navsatfix.longitude
+            fix.altitude = navsatfix.altitude
             
 
         
@@ -101,6 +106,7 @@ def main():
         publisher.publish(fix)
 
     node.create_timer(0.1, timer_callback)
+  
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
