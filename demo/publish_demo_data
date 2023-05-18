@@ -58,8 +58,13 @@ def main():
     args, unknown = parser.parse_known_args()
 
     rclpy.init()
+
+    from_bag = True # if true read fix msgs from bag and publish on wall time if false generate fake
+
+    navsatfix = NavSatFix()
     node = rclpy.create_node('publish_demo_data')
-    publisher = node.create_publisher(NavSatFix, 'fix', 1)
+    publisher = node.create_publisher(NavSatFix, 'ublox_rover/fix/wall_time', 1)
+    subscriber = node.create_subscription(NavSatFix, 'ublox_rover/fix2', listener_callback, 10)
 
     origin = NavSatFix()
     origin.latitude = args.latitude
@@ -71,17 +76,28 @@ def main():
     if args.no_fix_phase:
         updaters.append(LooseFix(args.no_fix_phase, args.no_fix_period))
 
+    def listener_callback(msg):
+        navsatfix = msg
+
     def timer_callback():
         fix = NavSatFix()
         t = node.get_clock().now()
         fix.header.stamp = t.to_msg()
-        fix.header.frame_id = "gps_sensor"
-        fix.latitude = origin.latitude
-        fix.longitude = origin.longitude
-        for u in updaters:
-            u.update(t, fix)
+        fix.header.frame_id = "gps"
+
+        if from_bag == False:
+            fix.latitude = origin.latitude
+            fix.longitude = origin.longitude
+            for u in updaters:
+                u.update(t, fix)
+        else:
+            fix.latitude = navsatfix.latitude
+            fix.longitude = navsatfix.longitude
+            
+
+        
         node.get_logger().info(
-            f'Publishing NavSatFix at ({fix.latitude:.5f}, {fix.longitude:.5f})')
+                    f'Publishing NavSatFix at ({fix.latitude:.5f}, {fix.longitude:.5f})')
         publisher.publish(fix)
 
     node.create_timer(0.1, timer_callback)

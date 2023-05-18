@@ -81,13 +81,13 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /fix
+        Value: /ublox_rover/fix
       Value: true
       Zoom: 19
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: gps_sensor
+    Fixed Frame: gps
     Frame Rate: 30
   Name: root
   Tools:
