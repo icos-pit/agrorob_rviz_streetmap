@@ -87,7 +87,7 @@ def main():
         fix = NavSatFix()
         t = node.get_clock().now()
         fix.header.stamp = t.to_msg()
-        fix.header.frame_id = "gps"
+        fix.header.frame_id = "ublox_rover"
 
         if from_bag == False:
             fix.latitude = origin.latitude

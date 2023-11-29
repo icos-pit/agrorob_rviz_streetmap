@@ -8,6 +8,6 @@ ros2 run rviz_satellite publish_demo_data.py LATITUDE LONGITUDE -->
     <node pkg="rviz_satellite" exec="publish_demo_data" args="52.371077 16.936969" />
 
     <!-- Both frames need to be present, so just coupling them https://github.com/nobleo/rviz_satellite/issues/110 -->
-    <node pkg="tf2_ros" exec="static_transform_publisher" args="--frame-id map --child-frame-id gps" />
+    <node pkg="tf2_ros" exec="static_transform_publisher" args="--frame-id map --child-frame-id odom" />
 
 </launch>
